@@ -45,7 +45,7 @@
 
     <main class="flex-1 flex flex-col">
       <div class="border border-gray-200 rounded mb-2 p-3">
-        <div class="text-lg pb-1">历史统计：</div>
+        <div class="text-lg pb-1" @click="loading = !loading">历史统计：</div>
         <div class="grid grid-cols-3 text-xl">
           <div v-for="(item, index) of countInfo" :key="index">{{ item }}</div>
         </div>
@@ -195,15 +195,22 @@ export default {
       })
     },
     updateWithdrawDeposit(params) {
+      const loading = this.$loading({
+        lock: true,
+        text: '转账中...',
+        spinner: 'el-icon-loading',
+      })
       return this.$axios
         .post(this.Api.updateWithdrawDeposit, this.GLOBAL.paramJson(params))
-        .then(res => {
+        .then(async res => {
           if (res.data.head.status !== 0) return Promise.reject(res)
           this.$refs.table.loadData()
           this.$message.success('修改成功')
+          loading.close()
         })
         .catch(err => {
           this.$message.error(err.data.head.msg ?? '修改失败')
+          loading.close()
         })
     },
     getCountAndAllMoney() {

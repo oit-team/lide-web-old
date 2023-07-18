@@ -66,7 +66,7 @@
               </el-collapse-item>
             </el-collapse>
         </div>
-        
+
         <div class="fileInfoBox">
           <el-form-item label="商品图片">
             <el-upload
@@ -78,7 +78,7 @@
               :file-list="fileList"
               :on-change="uploadChange"
               list-type="picture-card"
-              accept='image/jpeg,image/jpg'
+              accept='image/*'
               :before-upload="beforeUploadImg"
               :on-exceed="handleExceed"
               :on-preview="handlePictureCardPreview"
@@ -86,7 +86,7 @@
               <i class="el-icon-plus"></i>
             </el-upload>
           </el-form-item>
-          <p class="tip">*最多可以上传6张图片(按住Ctrl或Alt键选择多张图片上传)，仅支持jpg格式</p>
+          <p class="tip">*最多可以上传6张图片(按住Ctrl或Alt键选择多张图片上传)</p>
           <el-form-item label="商品视频">
             <el-upload
               :action="uploadUrl"
@@ -136,7 +136,7 @@
           <p class="tip">*最多可以上传1张图片，仅支持jpg格式</p>
         </div>
       </div>
-      
+
       <el-form-item class="buttonBox">
         <el-button size="small" icon="el-icon-check" v-if="flag != 'read'" type="primary" @click="submitForm('ruleForm')">保存</el-button>
         <el-button size="small" icon="el-icon-refresh" v-if="!editFlag" @click="resetForm('ruleForm')">重置</el-button>
@@ -275,7 +275,7 @@ export default {
             type: 'warning',
           })
         }
-       
+
       })
     },
     getGoodsType() {
@@ -390,20 +390,15 @@ export default {
       this.uploadData.fileType = '0'
       const pointIndex = file.name.lastIndexOf(".");
       const fileType = file.name.substring(pointIndex+1);   //获取到文件后缀名
-      const isJPG = (fileType === "jpg");
       const isLt4M = file.size / 1024 / 1024 < 4;
       const hour = Math.floor(Date.now() / (1000 * 60 * 60))
       const md5FileName = `${ this.md5(file.name + hour).toString() }.${ fileType }`
       this.uploadData.fname = md5FileName
-      if (!isJPG) {
-        this.$message.error("上传图片只能是 JPG 格式!");
-        return false
-      }
       if (!isLt4M) {
         this.$message.error("上传图片大小不能超过 4MB!");
         return false
       }
-      return isJPG && isLt4M;
+      return isLt4M;
     },
     handleExceed(files, fileList) {
       this.$message.warning(`当前限制选择 6 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
@@ -444,7 +439,7 @@ export default {
       return isVideo && isLt4M;
     },
     VideoUploadError() {
-      
+
     },
     VideoUploadSuccess(res,file){
       // this.isShowUploadVideo = true;
@@ -469,7 +464,7 @@ export default {
   #addGoods{
     min-height: 82vh;
     text-align: left;
-  
+
     //商品基础信息
     .goodsFormBox{
       width:100%;
@@ -533,7 +528,7 @@ export default {
       vertical-align: top;
     }
 
-  
+
     // 商品尺码
     .goodsSizeBox{
       // border:2px solid green;

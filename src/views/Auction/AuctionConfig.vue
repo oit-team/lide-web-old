@@ -3,14 +3,14 @@
     <el-aside  width="240px" class="scrollbar">
       <div class="AuctionMenu">
         <div class="addMenu">
-        <!--   <i @click="handleAddClick('menuDrawer')" class="el-icon-circle-plus"></i> -->
-           <el-button
-             size="mini"
-             icon="el-icon-plus"
-             @click="handleAddClick('menuDrawer')"
-           >
-             添加
-           </el-button>
+          <!--   <i @click="handleAddClick('menuDrawer')" class="el-icon-circle-plus"></i> -->
+          <el-button
+            size="mini"
+            icon="el-icon-plus"
+            @click="handleAddClick('menuDrawer')"
+          >
+            添加
+          </el-button>
           <el-button
             size="mini"
             icon="el-icon-setting"
@@ -18,8 +18,8 @@
           >
             券配置
           </el-button>
-         </div>
-         <span class="menuNull" v-if="menuList.length == 0">暂无数据</span>
+        </div>
+        <span class="menuNull" v-if="menuList.length == 0">暂无数据</span>
         <el-button class="animate" @click="menuClick(item)" @contextmenu.prevent.native="rightClick('menuDrawer', item)" v-for="(item,index) in menuList" :key="item.id" :class="{'active': (item.id === activeMenu.id)}">
           <div class="left animate">
             <span>{{index+1}}</span>
@@ -84,7 +84,8 @@
         </el-header>
         <el-main  v-loading="loading">
           <div class="AuctionManage">
-            <span>预约人数：{{relationInfo.appointedNum}}人</span>
+            <span>预约人数（有券）：{{relationInfo.haveTicketAppointedNum}}人</span>
+            <span>预约人数（无券）：{{relationInfo.noTicketAppointedNum}}人</span>
             <span>抢购人数：{{relationInfo.auctionNum}}人</span>
             <span>积分限制：<span style="color:#8d1323;cursor:pointer" @click="openRelationDrawer">{{relationInfo.integralLimit}}<i style="margin-left:4px;" class="el-icon-edit"></i></span></span>
             <span>宝玉限制：<span style="color:#8d1323;cursor:pointer" @click="openRelationDrawer">{{relationInfo.byLimit}}<i style="margin-left:4px;" class="el-icon-edit"></i></span></span>
@@ -159,10 +160,10 @@
                 <el-button type="primary" :disabled="inDuringDate || associatedRoom.length == 0" @click='getCalculatePrice'>模拟生成</el-button>
                 <el-button type="primary" :disabled="inDuringDate || associatedRoom.length == 0" @click='addGoodsAndPriceDetailed'>保存价格</el-button>
               </el-form>
-<!--              <div class="btnBox">
-                <el-button type="primary" :disabled="inDuringDate" @click='getCalculatePrice'>模拟生成</el-button>
-                <el-button type="primary" :disabled="inDuringDate" @click='addGoodsAndPriceDetailed'>保存价格</el-button>
-              </div> -->
+              <!--              <div class="btnBox">
+                              <el-button type="primary" :disabled="inDuringDate" @click='getCalculatePrice'>模拟生成</el-button>
+                              <el-button type="primary" :disabled="inDuringDate" @click='addGoodsAndPriceDetailed'>保存价格</el-button>
+                            </div> -->
             </div>
           </div>
           <div class="tableBox">
@@ -980,10 +981,7 @@ export default {
             _this.goodsList = res.data.body.auctionGoodsInfo
           }
           _this.serialNum = res.data.body.serialNum
-          _this.relationInfo.appointedNum = res.data.body.appointedNum
-          _this.relationInfo.auctionNum = res.data.body.auctionNum
-          _this.relationInfo.byLimit = res.data.body.byLimit
-          _this.relationInfo.integralLimit = res.data.body.integralLimit
+          _this.relationInfo = res.data.body
         }  else if(res.data.head.status !== 0) {
           _this.$message({
             message: res.data.head.msg,
@@ -1074,13 +1072,13 @@ export default {
           })
 
         } else {
-         _this.goodsList = _this.goodsList.filter(Item => Item.goodsCode != item.goodsCode)
-         _this.checkList = _this.checkList.filter(Item => Item != item.goodsCode)
-         _this.handleCheckedChange()
-         this.$message({
-           type: 'success',
-           message: '删除成功!'
-         });
+          _this.goodsList = _this.goodsList.filter(Item => Item.goodsCode != item.goodsCode)
+          _this.checkList = _this.checkList.filter(Item => Item != item.goodsCode)
+          _this.handleCheckedChange()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
         }
       }).catch(() => {
       });
@@ -1188,384 +1186,384 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-    .el-header{
-      background:#fff;
-      height: auto;
-      max-height: 120px;
-      padding:10px 10px;
-      overflow: auto;
-      li{
-        margin-right:20px;
-        float:left;
-        >span{
-          margin-right:6px;
-        }
-        .el-switch{
-          position:relative!important;
-          top:-1px!important;
-          right:0px!important;
-        }
-      }
+.el-header{
+  background:#fff;
+  height: auto;
+  max-height: 120px;
+  padding:10px 10px;
+  overflow: auto;
+  li{
+    margin-right:20px;
+    float:left;
+    >span{
+      margin-right:6px;
     }
-    .el-aside {
-      background: #fff;
-      direction: rtl;
-      position: absolute;
-      height: calc(100% - 60px);
-      .AuctionMenu{
-        direction: ltr;
-        padding-bottom: 50px;
-        .menuNull{
-          text-align: center;
-          font-size:16px;
-          color:#BFBFBF;
-          display: block;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          margin-left:-32px;
-        }
-        >div:last-child{
-          float: unset;
-          margin: 0 auto;
-        }
-
-        >.el-button{
-          width:100%;
-          margin-left:0px;
-          font-size: 16px;
-          padding:14px 6px;
-          border:0px;
-          border-radius: 0px;
-          color: #635a5a;
-          ::v-deep >span{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          };
-          .left{
-            width:20px;
-            float:left;
-            height:20px;
-            line-height: 20px;
-            border-radius: 50%;;
-            background: #BFBFBF;
-            color:#fff;
-            font-size:12px;
-          }
-          .right{
-            width: 50px;
-            float:right;
-          }
-          .center{
-            width:calc(100% - 80px);
-            display: inline-block;
-            >span{
-              display: block;
-            }
-            >span:nth-child(1){
-              font-size:18px;
-            }
-            >span:nth-child(2){
-              font-size:14px;
-              margin-top:6px;
-            }
-          }
-        }
-        >.el-button:hover{
-          background:#dedede;
-          .center{
-            >span:nth-child(1){
-              color:#000;
-            }
-          }
-        }
-        >.el-button.active{
-          background:#dedede;
-          .left{
-            background:#8d1323;
-          }
-          .center{
-            >span:nth-child(1){
-              color:#000;
-            }
-          }
-        }
-        .addMenu{
-          border-bottom:1px solid #ececec;
-          padding:10px 0;
-          text-align: center;
-          margin-top: 0!important;
-          .el-button{
-            border:1px solid #635a5a;
-            color:#635a5a;
-            padding:4px;
-            font-size:16px;
-          }
-          .el-button:hover{
-            border:1px solid #635a5a;
-            color:#635a5a;
-            background:#fff;
-          }
-        }
-      }
+    .el-switch{
+      position:relative!important;
+      top:-1px!important;
+      right:0px!important;
     }
-    ::v-deep .el-main {
-      background:#fff;
+  }
+}
+.el-aside {
+  background: #fff;
+  direction: rtl;
+  position: absolute;
+  height: calc(100% - 60px);
+  .AuctionMenu{
+    direction: ltr;
+    padding-bottom: 50px;
+    .menuNull{
       text-align: center;
-      padding:0px 10px 10px!important;
-      .AuctionManage{
-        float: left;
-        margin-left:4px;
-        margin-bottom:20px;
-        >span{
-          margin-right:18px;
-          color:#606266;
-          font-size: 14px;
-        }
-        .el-form{
-          display: inline-block;
-          .el-form-item{
-            display: inline-block;
-            width: 186px;
-            margin-right:18px;
-            margin-bottom:0px;
-          }
-          .el-form-item__label{
-            padding:0 4px 0 0;
-          }
-        }
-      }
-      .Price{
-        margin-top: 20px;
-        >div{
-          overflow: hidden;
-        }
-        .el-form-item{
-          display:inline-block;
-          width:186px;
-        }
-        .el-form{
-          width: 100%;
-          display: inline-block;
-          float: left;
-          text-align:left;
-        }
-        .el-form-item__label{
-          padding:0 6px 0 0;
-        }
-        // .btnBox{
-        //   width:230px;
-        //   overflow:hidden;
-        //   padding-left:18px;
-        //   padding-bottom: 20px;
-          .el-button{
-            background:#8d1323;
-            border:1px solid #8d1323;
-            margin-left:28px;
-          }
-          .el-button:nth-child(1){
-            background:#dd6161;
-            border:1px solid #dd6161;
-          }
-        // }
-      }
+      font-size:16px;
+      color:#BFBFBF;
+      display: block;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left:-32px;
+    }
+    >div:last-child{
+      float: unset;
+      margin: 0 auto;
     }
 
-    body > .el-container {
-      margin-bottom: 40px;
-    }
-    #Content{
-      background:#F7F7F7;
-      // background:#ccc;
-      padding:0px 0px 0px 246px;
-      display:inline-block!important;
-      >div{
-        border:1px solid #eaeaea;
-      }
-      .AuctionMenu{
-        .roomNull{
-          color:#BFBFBF;
-          font-size:16px;
-          heihgt:50px;
-          line-height: 50px;
-        }
-        .roomNull::after{
-          border-right:0px solid #BFBFBF!important;
-        }
-        padding:6px 12px 0;
-        overflow:hidden;
-        line-height: 56px;
-        margin-bottom: 0px;
-        .active{
-          span{
-            color: #8d1323;
-          }
-        }
-        >div:not(:last-child){
-          overflow:hidden;
-          display: inline-block;
-          float: left;
-          padding:0 16px;
-          position:relative;
-        }
-        >div:not(:last-child)::after{
-          content:'';
-          display: inline-block;
-          border-right:1px solid #BFBFBF;
-          height:20px;
-          position:absolute;
-          right:0px;
-          top:50%;
-          margin-top:-14px;
-        }
-        .el-button{
-          color: #635a5a;
-          position:relative;
-          list-style: none;
-          border:#fff;
-          background:  #fff;
-          line-height: 26px;
-          padding:8px 60px 8px 10px;
-          text-align: center;
-          float: left;
-          width:130px;
-          span{
-            display: inline-block;
-            width:70px;
-            overflow:hidden;
-            text-align: center;
-            text-overflow:ellipsis;
-          }
-          .el-switch{
-            position:absolute;
-            top:10px;
-            right:6px;
-          }
-          >div{
-            font-size:18px;
-            >span{
-              font-size:16px;
-            }
-          }
-        }
-      }
-    }
-    #ImgList{
-      border: 2px solid #efefef;
-      width: 100%;
-      max-height: 460px;
-      overflow: auto;
-      >div{
-        float: left;
-        margin:20px 22px;
-        position: relative;
-      }
-      .deleteBox{
-        position: absolute;
-        top:0px;
-        right:4px;
-        height:24px;
-        font-size:16px;
-        text-align: center;
-        line-height: 24px;
-        i{
-          margin-left:5px;
-          cursor: pointer;
-        }
-      }
-      .imgBox{
-        width: 150px;
-        border:1px solid #ccc;
-        height:170px;
-        margin-bottom:5px;
+    >.el-button{
+      width:100%;
+      margin-left:0px;
+      font-size: 16px;
+      padding:14px 6px;
+      border:0px;
+      border-radius: 0px;
+      color: #635a5a;
+      ::v-deep >span{
         display: flex;
         justify-content: center;
         align-items: center;
-        >img{
-          max-width: 100%;
-          max-height: 100%;
-        }
+      };
+      .left{
+        width:20px;
+        float:left;
+        height:20px;
+        line-height: 20px;
+        border-radius: 50%;;
+        background: #BFBFBF;
+        color:#fff;
+        font-size:12px;
       }
-      >div.addImg{
-        width:150px;
-        height:194px;
-        display: flex;
-        justify-content: center;
-        >div{
-          cursor: pointer;
-          margin-top: 45px;
-          border:2px solid #ebeef5;
-          width:80px;
-          height:80px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          >i{
-            color:#ebeef5;
-            font-size:56px;
-          }
+      .right{
+        width: 50px;
+        float:right;
+      }
+      .center{
+        width:calc(100% - 80px);
+        display: inline-block;
+        >span{
+          display: block;
+        }
+        >span:nth-child(1){
+          font-size:18px;
+        }
+        >span:nth-child(2){
+          font-size:14px;
+          margin-top:6px;
         }
       }
     }
-    #roomBox div.addBtn{
-      display: inline-block;
-      margin-left: 28px;
+    >.el-button:hover{
+      background:#dedede;
+      .center{
+        >span:nth-child(1){
+          color:#000;
+        }
+      }
+    }
+    >.el-button.active{
+      background:#dedede;
+      .left{
+        background:#8d1323;
+      }
+      .center{
+        >span:nth-child(1){
+          color:#000;
+        }
+      }
+    }
+    .addMenu{
+      border-bottom:1px solid #ececec;
+      padding:10px 0;
+      text-align: center;
+      margin-top: 0!important;
       .el-button{
-        background-color: #fff;
         border:1px solid #635a5a;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width:22px;
-        height:22px;
-        font-weight: bolder;
-        padding:6px;
-        font-size:14px;
-        margin-top:8px;
-        color: #635a5a;
+        color:#635a5a;
+        padding:4px;
+        font-size:16px;
+      }
+      .el-button:hover{
+        border:1px solid #635a5a;
+        color:#635a5a;
+        background:#fff;
       }
     }
-    ::v-deep .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before{
-      content:''!important;
+  }
+}
+::v-deep .el-main {
+  background:#fff;
+  text-align: center;
+  padding:0px 10px 10px!important;
+  .AuctionManage{
+    float: left;
+    margin-left:4px;
+    margin-bottom:20px;
+    >span{
+      margin-right:18px;
+      color:#606266;
+      font-size: 14px;
     }
-    .disabled{
-      cursor: not-allowed!important;
+    .el-form{
+      display: inline-block;
+      .el-form-item{
+        display: inline-block;
+        width: 186px;
+        margin-right:18px;
+        margin-bottom:0px;
+      }
+      .el-form-item__label{
+        padding:0 4px 0 0;
+      }
     }
-    .el-button:focus{
-      //background-color:#fff;
+  }
+  .Price{
+    margin-top: 20px;
+    >div{
+      overflow: hidden;
     }
-    .el-switch.is-disabled{
-      opacity: 0.3
+    .el-form-item{
+      display:inline-block;
+      width:186px;
     }
-    ::v-deep  .el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell{
-      background-color:#F5F7FA;
+    .el-form{
+      width: 100%;
+      display: inline-block;
+      float: left;
+      text-align:left;
     }
-    ::v-deep .el-table__body tr.activeRow > td.el-table__cell{
-      background-color:#fed1d1;
+    .el-form-item__label{
+      padding:0 6px 0 0;
     }
-    ::v-deep .el-table tr.activeRow{
-      background-color: #fed1d1;
+    // .btnBox{
+    //   width:230px;
+    //   overflow:hidden;
+    //   padding-left:18px;
+    //   padding-bottom: 20px;
+    .el-button{
+      background:#8d1323;
+      border:1px solid #8d1323;
+      margin-left:28px;
     }
-    ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner{
-      background: #8d1323;
+    .el-button:nth-child(1){
+      background:#dd6161;
+      border:1px solid #dd6161;
     }
-    ::v-deep .el-checkbox__inner:hover{
-      border-color: #8d1323;
+    // }
+  }
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+#Content{
+  background:#F7F7F7;
+  // background:#ccc;
+  padding:0px 0px 0px 246px;
+  display:inline-block!important;
+  >div{
+    border:1px solid #eaeaea;
+  }
+  .AuctionMenu{
+    .roomNull{
+      color:#BFBFBF;
+      font-size:16px;
+      heihgt:50px;
+      line-height: 50px;
     }
-    ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner{
-      border-color: #8d1323;
+    .roomNull::after{
+      border-right:0px solid #BFBFBF!important;
     }
-    ::v-deep .el-checkbox__input.is-focus .el-checkbox__inner{
-      border-color: #8d1323;
+    padding:6px 12px 0;
+    overflow:hidden;
+    line-height: 56px;
+    margin-bottom: 0px;
+    .active{
+      span{
+        color: #8d1323;
+      }
     }
-    ::v-deep .el-checkbox__input.is-checked + .el-checkbox__label{
-      color: #8d1323;
+    >div:not(:last-child){
+      overflow:hidden;
+      display: inline-block;
+      float: left;
+      padding:0 16px;
+      position:relative;
     }
+    >div:not(:last-child)::after{
+      content:'';
+      display: inline-block;
+      border-right:1px solid #BFBFBF;
+      height:20px;
+      position:absolute;
+      right:0px;
+      top:50%;
+      margin-top:-14px;
+    }
+    .el-button{
+      color: #635a5a;
+      position:relative;
+      list-style: none;
+      border:#fff;
+      background:  #fff;
+      line-height: 26px;
+      padding:8px 60px 8px 10px;
+      text-align: center;
+      float: left;
+      width:130px;
+      span{
+        display: inline-block;
+        width:70px;
+        overflow:hidden;
+        text-align: center;
+        text-overflow:ellipsis;
+      }
+      .el-switch{
+        position:absolute;
+        top:10px;
+        right:6px;
+      }
+      >div{
+        font-size:18px;
+        >span{
+          font-size:16px;
+        }
+      }
+    }
+  }
+}
+#ImgList{
+  border: 2px solid #efefef;
+  width: 100%;
+  max-height: 460px;
+  overflow: auto;
+  >div{
+    float: left;
+    margin:20px 22px;
+    position: relative;
+  }
+  .deleteBox{
+    position: absolute;
+    top:0px;
+    right:4px;
+    height:24px;
+    font-size:16px;
+    text-align: center;
+    line-height: 24px;
+    i{
+      margin-left:5px;
+      cursor: pointer;
+    }
+  }
+  .imgBox{
+    width: 150px;
+    border:1px solid #ccc;
+    height:170px;
+    margin-bottom:5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    >img{
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+  >div.addImg{
+    width:150px;
+    height:194px;
+    display: flex;
+    justify-content: center;
+    >div{
+      cursor: pointer;
+      margin-top: 45px;
+      border:2px solid #ebeef5;
+      width:80px;
+      height:80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      >i{
+        color:#ebeef5;
+        font-size:56px;
+      }
+    }
+  }
+}
+#roomBox div.addBtn{
+  display: inline-block;
+  margin-left: 28px;
+  .el-button{
+    background-color: #fff;
+    border:1px solid #635a5a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:22px;
+    height:22px;
+    font-weight: bolder;
+    padding:6px;
+    font-size:14px;
+    margin-top:8px;
+    color: #635a5a;
+  }
+}
+::v-deep .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before{
+  content:''!important;
+}
+.disabled{
+  cursor: not-allowed!important;
+}
+.el-button:focus{
+  //background-color:#fff;
+}
+.el-switch.is-disabled{
+  opacity: 0.3
+}
+::v-deep  .el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell{
+  background-color:#F5F7FA;
+}
+::v-deep .el-table__body tr.activeRow > td.el-table__cell{
+  background-color:#fed1d1;
+}
+::v-deep .el-table tr.activeRow{
+  background-color: #fed1d1;
+}
+::v-deep .el-checkbox__input.is-checked .el-checkbox__inner{
+  background: #8d1323;
+}
+::v-deep .el-checkbox__inner:hover{
+  border-color: #8d1323;
+}
+::v-deep .el-checkbox__input.is-checked .el-checkbox__inner{
+  border-color: #8d1323;
+}
+::v-deep .el-checkbox__input.is-focus .el-checkbox__inner{
+  border-color: #8d1323;
+}
+::v-deep .el-checkbox__input.is-checked + .el-checkbox__label{
+  color: #8d1323;
+}
 </style>
 <style>
-  #elMain{
-    padding:0px;
-  }
+#elMain{
+  padding:0px;
+}
 
 </style>
